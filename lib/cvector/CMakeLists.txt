@@ -9,6 +9,7 @@ include_directories(include)
 set(SOURCES
         src/cvector_core.c
         src/cvector_insert_erase.c
+        src/cvector_resize.c
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})

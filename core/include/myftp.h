@@ -18,10 +18,6 @@
 #include <signal.h>
 #include <poll.h>
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 #ifdef EXIT_FAILURE
 #undef EXIT_FAILURE
 #define EXIT_FAILURE 84
@@ -58,7 +54,6 @@ typedef struct {
     socket_t listen_sock;
     uint16_t port;
     peer_t *connection_list;
-    struct pollfd *pfds;
     //server_data_t server_data;
 } server_t;
 
