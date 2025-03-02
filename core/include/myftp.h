@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <signal.h>
+#include <poll.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -56,6 +58,7 @@ typedef struct {
     socket_t listen_sock;
     uint16_t port;
     peer_t *connection_list;
+    struct pollfd *pfds;
     //server_data_t server_data;
 } server_t;
 

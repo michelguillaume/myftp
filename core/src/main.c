@@ -46,12 +46,25 @@ static int get_port(const char *input, uint16_t *port)
     return SUCCESS;
 }
 
+void shutdown_properly(server_t *my_server)
+{
+
+}
+
 static void
 setup_server(server_t *my_server, socket_t listen_sock, uint16_t port)
 {
     my_server->listen_sock = listen_sock;
     my_server->port = port;
-    my_server->connection_list = VECTOR(peer_t, FD_SETSIZE);
+    my_server->connection_list = VECTOR(peer_t, 1024);
+    if (my_server->connection_list == nullptr)
+        shutdown_properly(my_server);
+    my_server->pfds = VECTOR(struct pollfd, 1024);
+    if (my_server->pfds == nullptr)
+        shutdown_properly(my_server);
+    my_server->pfds[0].fd = my_server->listen_sock;
+    my_server->pfds[0].events = POLLIN;
+
 //    init_server_data(&my_server->server_data);
 }
 
@@ -69,13 +82,13 @@ start_server(const char *input)
     if (listen_sock == INVALID_SOCKET) {
         return;
     }
+    signal(SIGINT, signal_handler);
     my_server = get_server();
     if (!my_server) {
         close_connection(listen_sock);
         return;
     }
     setup_server(my_server, listen_sock, port);
-    signal(SIGINT, signal_handler);
     server_loop(my_server);
 }
 

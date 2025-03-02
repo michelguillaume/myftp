@@ -1,7 +1,20 @@
 #include "myftp.h"
+#include "cvector.h"
 
-_Noreturn void
-server_loop(server_t *my_server)
+void update_pfds(server_t *my_server)
+{
+    for (int i = 1; i <= vector_size(my_server->connection_list); i++) {
+        if (my_server->connection_list[i - 1].socket == INVALID_SOCKET)
+            continue;
+        my_server->pfds[i].fd = my_server->connection_list[i - 1].socket;
+        if (vector_size(my_server->connection_list[i - 1].sending_buffer) == 0)
+            my_server->pfds[i].events = POLLIN;
+        else
+            my_server->pfds[i].events = POLLIN | POLLOUT;
+    }
+}
+
+_Noreturn void server_loop(server_t *my_server)
 {
     /*
     fd_set_group_t fds_group = { };
@@ -19,8 +32,8 @@ server_loop(server_t *my_server)
     } while (1);
     */
 
-    while (1)
-    {
+    while (1) {
+        update_pfds(my_server);
 
     }
 }
