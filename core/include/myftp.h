@@ -15,10 +15,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdbool.h>
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <signal.h>
 
 #ifdef EXIT_FAILURE
 #undef EXIT_FAILURE
