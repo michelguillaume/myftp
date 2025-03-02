@@ -2,6 +2,7 @@
 set(SOURCES
         src/main.c
         src/server.c
+        src/command.c
 
         src/mynetworks.c
         src/create_tcp_socket.c

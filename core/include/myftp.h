@@ -9,14 +9,20 @@
 #ifndef MYFTP_H
 #define MYFTP_H
 
+#ifndef _GNU_SOURCE
+    #define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <string.h>
+
 #include <poll.h>
+#include <netinet/in.h>
 
 #ifdef EXIT_FAILURE
 #undef EXIT_FAILURE
@@ -54,9 +60,17 @@ typedef struct {
     socket_t listen_sock;
     uint16_t port;
     peer_t *connection_list;
+    struct pollfd *pfds;
     //server_data_t server_data;
 } server_t;
 
+typedef struct
+{
+    char *str;
+    void (*ptr)(server_t *, char *, peer_t *);
+}fnct_ptr_t;
+
 _Noreturn void server_loop(server_t *my_server);
+void process_command(server_t *my_server, peer_t *client);
 
 #endif
