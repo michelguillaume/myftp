@@ -7,42 +7,42 @@
 */
 
 #ifndef MYFTP_H
-#define MYFTP_H
+    #define MYFTP_H
 
-#ifndef _GNU_SOURCE
-    #define _GNU_SOURCE
-#endif
+    #ifndef _GNU_SOURCE
+        #define _GNU_SOURCE
+    #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <string.h>
-#include <limits.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <unistd.h>
+    #include <errno.h>
+    #include <stdbool.h>
+    #include <signal.h>
+    #include <string.h>
+    #include <limits.h>
 
-#include <poll.h>
-#include <netinet/in.h>
+    #include <poll.h>
+    #include <netinet/in.h>
 
-#ifdef __APPLE__
-    #include <sys/syslimits.h>
-#endif
+    #ifdef __APPLE__
+        #include <sys/syslimits.h>
+    #endif
 
-#ifdef EXIT_FAILURE
-#undef EXIT_FAILURE
-#define EXIT_FAILURE 84
-#endif
+    #ifdef EXIT_FAILURE
+        #undef EXIT_FAILURE
+        #define EXIT_FAILURE 84
+    #endif
 
-#define SUCCESS 0
-#define FAILURE 1
+    #define SUCCESS 0
+    #define FAILURE 1
 
 typedef int socket_t;
 
-#define SOCKET_ERROR (-1)
-#define INVALID_SOCKET (-1)
+    #define SOCKET_ERROR (-1)
+    #define INVALID_SOCKET (-1)
 
-#define USERNAME_SIZE 256
+    #define USERNAME_SIZE 256
 
 typedef enum {
     NOT_AUTH,
