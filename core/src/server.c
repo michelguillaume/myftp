@@ -17,8 +17,6 @@ void update_pfds(peer_t* connection_list, struct pollfd* pfds)
 
 static int init_peer_connection(peer_t* conn, socket_t client_sock, struct sockaddr_in client_addr)
 {
-    conn->socket = client_sock;
-    conn->address = client_addr;
     conn->receiving_buffer = VECTOR(char, 1024);
     if (conn->receiving_buffer == NULL) {
         fprintf(stderr, "Error: Failed to allocate receiving buffer\n");
@@ -30,6 +28,9 @@ static int init_peer_connection(peer_t* conn, socket_t client_sock, struct socka
         vector_destroy(conn->receiving_buffer);
         return FAILURE;
     }
+    conn->socket = client_sock;
+    conn->address = client_addr;
+    conn->user_data = (user_data_t){NOT_AUTH, {0}, {0}};
     return SUCCESS;
 }
 

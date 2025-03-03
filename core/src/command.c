@@ -10,9 +10,8 @@
 
 static fnct_ptr_t commands[] = {
 {"USER", my_user},
-    /*
-
     {"PASS", my_pass},
+    /*
     {"CWD", my_cwd},
     {"CDUP", my_cdup},
     {"QUIT", my_quit},
@@ -49,9 +48,8 @@ void process_command(server_t *srv, peer_t *conn)
        *ptr = 0;
     for (int i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
         if (strcmp(commands[i].str, conn->receiving_buffer) == 0) {
-            printf("Command: %s\n", commands[i].str);
             commands[i].ptr(srv,
-                (vector_back(conn->receiving_buffer) == ptr)
+                (vector_back(conn->receiving_buffer) == ptr + 1)
                 ? nullptr : ptr + 1, conn);
             return;
         }

@@ -14,6 +14,7 @@ set(SOURCES
         src/print_socket_error.c
 
         src/commands/my_user.c
+        src/commands/my_pass.c
 )
 
 set(HEADERS

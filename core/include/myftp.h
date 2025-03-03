@@ -20,9 +20,14 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <string.h>
+#include <limits.h>
 
 #include <poll.h>
 #include <netinet/in.h>
+
+#ifdef __APPLE__
+    #include <sys/syslimits.h>
+#endif
 
 #ifdef EXIT_FAILURE
 #undef EXIT_FAILURE
@@ -32,23 +37,32 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-//typedef struct user {
-//    char name[MAX_NAME_LENGTH];
-//    uuid_t user_uuid;
-//    int current_connections;
-//} user_t;
-
 typedef int socket_t;
 
 #define SOCKET_ERROR (-1)
 #define INVALID_SOCKET (-1)
+
+#define USERNAME_SIZE 256
+
+typedef enum {
+    NOT_AUTH,
+    WAIT_PASS,
+    AUTH,
+    QUIT
+} state_m;
+
+typedef struct {
+    state_m state;
+    char username[USERNAME_SIZE];
+    char pwd[PATH_MAX];
+} user_data_t;
 
 typedef struct {
     socket_t socket;
     struct sockaddr_in address;
     char *sending_buffer;
     char *receiving_buffer;
-    //user_t *user;
+    user_data_t user_data;
 } peer_t;
 
 //typedef struct server_data {
@@ -73,5 +87,6 @@ _Noreturn void server_loop(server_t *srv);
 void process_command(server_t *srv, peer_t *conn);
 
 void my_user(server_t *srv, char *arg, peer_t *conn);
+void my_pass(server_t *srv, char *arg, peer_t *conn);
 
 #endif
