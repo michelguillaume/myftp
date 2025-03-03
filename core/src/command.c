@@ -8,12 +8,12 @@
 #include "myftp.h"
 #include "cvector.h"
 
-static fnct_ptr_t commands[] = {
-{"USER", my_user},
-{"PASS", my_pass},
-{"NOOP", my_noop},
-{"HELP", my_help},
-{"PWD", my_pwd},
+static const fnct_ptr_t commands[] = {
+    {"USER", my_user},
+    {"PASS", my_pass},
+    {"NOOP", my_noop},
+    {"HELP", my_help},
+    {"PWD", my_pwd},
     /*
     {"CWD", my_cwd},
     {"CDUP", my_cdup},
@@ -46,7 +46,7 @@ void process_command(server_t *srv, peer_t *conn)
     char *ptr = strchrnul(conn->receiving_buffer, ' ');
 
     if (*ptr)
-       *ptr = 0;
+        *ptr = 0;
     for (int i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
         if (strcmp(commands[i].str, conn->receiving_buffer) == 0) {
             commands[i].ptr(srv,
@@ -56,5 +56,6 @@ void process_command(server_t *srv, peer_t *conn)
         }
     }
     if (vector_push_back(conn->sending_buffer, "500\r\n", 5) == VECTOR_FAILURE)
-        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+        fprintf(stderr,
+            "Error: Failed to push error message to sending_buffer\n");
 }
