@@ -10,17 +10,18 @@
 
 static fnct_ptr_t commands[] = {
 {"USER", my_user},
-    {"PASS", my_pass},
+{"PASS", my_pass},
+{"NOOP", my_noop},
+{"HELP", my_help},
+{"PWD", my_pwd},
     /*
     {"CWD", my_cwd},
     {"CDUP", my_cdup},
     {"QUIT", my_quit},
     {"DELE", my_dele},
-    {"PWD", my_pwd},
+
     {"PASV", my_pasv},
     {"PORT", my_port},
-    {"HELP", my_help},
-    {"NOOP", my_noop},
     {"RETR", my_retr},
     {"STOR", my_stor},
     {"LIST", my_list},
