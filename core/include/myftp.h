@@ -49,10 +49,10 @@ typedef enum {
     WAIT_PASS,
     AUTH,
     QUIT
-} state_m;
+} state_t;
 
 typedef struct {
-    state_m state;
+    state_t state;
     char username[USERNAME_SIZE];
     char pwd[PATH_MAX];
 } user_data_t;
