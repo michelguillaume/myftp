@@ -15,11 +15,11 @@ socket_t create_tcp_server(uint16_t port)
         return INVALID_SOCKET;
     }
     if (!bind_socket(server_sock, "0.0.0.0", port)) {
-        close_socket(server_sock);
+        close_connection(server_sock);
         return INVALID_SOCKET;
     }
     if (!listen_socket(server_sock, 5)) {
-        close_socket(server_sock);
+        close_connection(server_sock);
         return INVALID_SOCKET;
     }
     return server_sock;
@@ -62,5 +62,22 @@ ssize_t receive_data(socket_t sockfd, char *buffer, int length)
 
 int close_connection(socket_t sockfd)
 {
-    return close_socket(sockfd);
+    if (shutdown(sockfd, SHUT_RDWR) == SOCKET_ERROR) {
+        print_socket_error("close_connection: shutdown failed");
+        return false;
+    }
+    if (close(sockfd) == SOCKET_ERROR) {
+        print_socket_error("close_connection: close failed");
+        return false;
+    }
+    return true;
+}
+
+bool abort_connection(socket_t sockfd)
+{
+    if (close(sockfd) == SOCKET_ERROR) {
+        print_socket_error("abort_connection: close failed");
+        return false;
+    }
+    return true;
 }

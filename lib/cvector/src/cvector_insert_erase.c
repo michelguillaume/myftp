@@ -51,8 +51,9 @@ void vector_erase_impl(void **v, const size_t index, size_t count,
     if (index + count > header->size)
         count = header->size - index;
     old_size = header->size;
-    memmove((unsigned char *)*v + index * item_size,
-        (unsigned char *)*v + (index + count) * item_size,
-            (old_size - index - count) * item_size);
+    if (index + count < old_size)
+        memmove((unsigned char *)*v + index * item_size,
+            (unsigned char *)*v + (index + count) * item_size,
+                (old_size - index - count) * item_size);
     header->size = old_size - count;
 }

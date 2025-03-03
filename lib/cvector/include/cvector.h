@@ -38,7 +38,7 @@ typedef struct {
 #define VECTOR_HEADER(v) ((vector_header_t*)(v) - 1)
 
 // Get the size of the vector
-#define vector_size(v) ((v) ? VECTOR_HEADER(v)->size : 0)
+#define vector_size(v) VECTOR_HEADER(v)->size
 
 // Get the capacity of the vector
 #define vector_capacity(v) ((v) ? VECTOR_HEADER(v)->capacity : 0)

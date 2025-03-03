@@ -30,7 +30,7 @@ bool listen_socket(socket_t sockfd, int backlog);
 socket_t accept_tcp_connection(socket_t server_sock, struct sockaddr *client_addr, socklen_t *addr_len);
 socket_t accept_tcp_connection_impl(socket_t sockfd, struct sockaddr *client_addr, socklen_t *addr_len);
 int close_connection(socket_t sockfd);
-bool close_socket(socket_t sockfd);
+bool abort_connection(socket_t sockfd);
 
 
 ssize_t send_data(socket_t sockfd, const char *buffer, int length);

@@ -8,11 +8,6 @@
 #include "myftp.h"
 #include "cvector.h"
 
-void my_user(server_t *my_server, char *input, peer_t *client)
-{
-
-}
-
 static fnct_ptr_t commands[] = {
 {"USER", my_user},
     /*
@@ -31,24 +26,36 @@ static fnct_ptr_t commands[] = {
     {"STOR", my_stor},
     {"LIST", my_list},
      */
-    {0}
 };
 
+#ifdef __APPLE__
 
-void process_command(server_t *my_server, peer_t *client)
+char *strchrnul(const char *str, int c) {
+    const char *ptr = str;
+
+    while (*ptr != '\0' && *ptr != c) {
+        ++ptr;
+    }
+    return (char *)ptr;
+}
+
+#endif
+
+void process_command(server_t *srv, peer_t *conn)
 {
-    char *ptr = strchrnul(client->receiving_buffer, ' ');
+    char *ptr = strchrnul(conn->receiving_buffer, ' ');
 
     if (*ptr)
        *ptr = 0;
-    for (int i = 0; commands[i].ptr; i++) {
-        if (strcmp(commands[i].str, client->receiving_buffer) == 0) {
-            commands[i].ptr(my_server, ptr, client);
+    for (int i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
+        if (strcmp(commands[i].str, conn->receiving_buffer) == 0) {
+            printf("Command: %s\n", commands[i].str);
+            commands[i].ptr(srv,
+                (vector_back(conn->receiving_buffer) == ptr)
+                ? nullptr : ptr + 1, conn);
             return;
         }
     }
-    if (vector_push_back(client->sending_buffer, "500\r\n", 5) == VECTOR_FAILURE)
-    {
-#warning return or call return_properly
-    }
+    if (vector_push_back(conn->sending_buffer, "500\r\n", 5) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
 }

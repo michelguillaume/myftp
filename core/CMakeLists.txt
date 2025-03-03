@@ -9,10 +9,11 @@ set(SOURCES
         src/bind_socket.c
         src/listen_socket.c
         src/accept_tcp_connection_impl.c
-        src/close_socket.c
         src/convert_ip_address.c
         src/convert_address_to_string.c
         src/print_socket_error.c
+
+        src/commands/my_user.c
 )
 
 set(HEADERS

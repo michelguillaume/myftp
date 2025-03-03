@@ -64,13 +64,14 @@ typedef struct {
     //server_data_t server_data;
 } server_t;
 
-typedef struct
-{
+typedef struct {
     char *str;
     void (*ptr)(server_t *, char *, peer_t *);
-}fnct_ptr_t;
+} fnct_ptr_t;
 
-_Noreturn void server_loop(server_t *my_server);
-void process_command(server_t *my_server, peer_t *client);
+_Noreturn void server_loop(server_t *srv);
+void process_command(server_t *srv, peer_t *conn);
+
+void my_user(server_t *srv, char *arg, peer_t *conn);
 
 #endif

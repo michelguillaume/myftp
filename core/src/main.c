@@ -48,7 +48,7 @@ static int get_port(const char *input, uint16_t *port)
 
 void shutdown_properly(server_t *my_server)
 {
-
+    close_connection(my_server->listen_sock);
 }
 
 static void
@@ -62,8 +62,9 @@ setup_server(server_t *my_server, socket_t listen_sock, uint16_t port)
     my_server->pfds = VECTOR(struct pollfd, 1024);
     if (my_server->pfds == nullptr)
         shutdown_properly(my_server);
-    my_server->pfds[0].fd = my_server->listen_sock;
+    my_server->pfds[0].fd = listen_sock;
     my_server->pfds[0].events = POLLIN;
+    vector_size(my_server->pfds) = 1;
 
 //    init_server_data(&my_server->server_data);
 }
