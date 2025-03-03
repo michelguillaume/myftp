@@ -46,16 +46,25 @@ static int get_port(const char *input, uint16_t *port)
     return SUCCESS;
 }
 
+static int get_path(const char *input, char *path)
+{
+    if (realpath(input, path) == NULL) {
+        return (FAILURE);
+    }
+    return SUCCESS;
+}
+
 void shutdown_properly(server_t *my_server)
 {
     close_connection(my_server->listen_sock);
 }
 
 static void
-setup_server(server_t *my_server, socket_t listen_sock, uint16_t port)
+setup_server(server_t *my_server, socket_t listen_sock, uint16_t port, char *path)
 {
     my_server->listen_sock = listen_sock;
     my_server->port = port;
+    my_server->path = path;
     my_server->connection_list = VECTOR(peer_t, 1024);
     if (my_server->connection_list == nullptr)
         shutdown_properly(my_server);
@@ -70,26 +79,25 @@ setup_server(server_t *my_server, socket_t listen_sock, uint16_t port)
 }
 
 static void
-start_server(const char *input)
+start_server(const char * const *args)
 {
     uint16_t port;
     socket_t listen_sock;
     server_t *my_server;
+    char *path = nullptr;
 
-    if (get_port(input, &port) == FAILURE) {
+    if (get_port(args[0], &port) == FAILURE || get_path(args[1], path) == FAILURE)
         return;
-    }
     listen_sock = create_tcp_server(port);
-    if (listen_sock == INVALID_SOCKET) {
+    if (listen_sock == INVALID_SOCKET)
         return;
-    }
     signal(SIGINT, signal_handler);
     my_server = get_server();
     if (!my_server) {
         close_connection(listen_sock);
         return;
     }
-    setup_server(my_server, listen_sock, port);
+    setup_server(my_server, listen_sock, port, path);
     server_loop(my_server);
 }
 
@@ -98,7 +106,7 @@ int main(const int ac, const char *const av[])
     if (ac == 2 && strcmp(av[1], "-help") == 0) {
         help();
     } else if (ac == 3) {
-        start_server(av[1]);
+        start_server(&(av[1]));
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
