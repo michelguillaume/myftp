@@ -91,5 +91,8 @@ void handle_new_connection(server_t *srv);
 
 void my_user(server_t *srv, char *arg, peer_t *conn);
 void my_pass(server_t *srv, char *arg, peer_t *conn);
+void my_noop(server_t *, char *, peer_t *conn);
+void my_help(server_t *, char *, peer_t *conn);
+void my_pwd(server_t *srv, char *arg, peer_t *conn);
 
 #endif
