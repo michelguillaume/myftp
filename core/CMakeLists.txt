@@ -16,6 +16,7 @@ set(SOURCES
         src/commands/my_user.c
         src/commands/my_pass.c
         src/commands/my_cwd.c
+        src/commands/
 )
 
 set(HEADERS
