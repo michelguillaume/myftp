@@ -27,37 +27,42 @@
 //                  500, 501, 503, 421
 //                  332
 
-void my_pass(server_t *srv, char *arg, peer_t *conn)
+static void send_bad_sequence_error(peer_t *conn)
+{
+    if (vector_push_back(conn->sending_buffer,
+        "503 Bad sequence of commands.\r\n", 31) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+}
+
+static void handle_anonymous_login(peer_t *conn)
+{
+    conn->user_data.state = AUTH;
+    conn->user_data.pwd[0] = '/';
+
+    if (vector_push_back(conn->sending_buffer,
+        "230 User logged in, proceed.\r\n", 30) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
+}
+
+static void send_login_incorrect(peer_t *conn)
+{
+    if (vector_push_back(conn->sending_buffer,
+        "530 Login incorrect.\r\n", 22) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+}
+
+void my_pass(server_t *, char *arg, peer_t *conn)
 {
     if (conn->user_data.state == AUTH || conn->user_data.state == NOT_AUTH ||
         conn->user_data.state == QUIT) {
-        if (vector_push_back(conn->sending_buffer,
-            "503 Bad sequence of commands.\r\n", 31) == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+        send_bad_sequence_error(conn);
         return;
     }
-    if (!arg) {
-        if (strcmp(conn->user_data.username, "Anonymous") == 0) {
-            conn->user_data.state = AUTH;
-            conn->user_data.pwd[0] = '/';
-            if (vector_push_back(conn->sending_buffer, "230 User logged in, proceed.\r\n", 30) == VECTOR_FAILURE)
-                fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
-#warning ça depend de ce que marvin envoie en paramètre si c'est "USER " ou "USER"
-            //if (vector_push_back(conn->sending_buffer,
-            //    "501 Syntax error in parameters or arguments.\r\n", 46) == VECTOR_FAILURE)
-            //    fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
-            return;
-        }
-        if (vector_push_back(conn->sending_buffer, "530 Login incorrect.\r\n", 22) == VECTOR_FAILURE)
-                fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
-    }
-    if (strcmp(conn->user_data.username, "Anonymous") == 0 && strcmp(arg, "") == 0) {
-        conn->user_data.state = AUTH;
-        conn->user_data.pwd[0] = '/';
-        if (vector_push_back(conn->sending_buffer, "230 User logged in, proceed.\r\n", 30) == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
+    if ((!arg && strcmp(conn->user_data.username, "Anonymous") == 0) ||
+        (strcmp(conn->user_data.username, "Anonymous") == 0
+        && strcmp(arg, "") == 0)) {
+        handle_anonymous_login(conn);
     } else {
-        if (vector_push_back(conn->sending_buffer, "530 Login incorrect.\r\n", 22) == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+        send_login_incorrect(conn);
     }
 }
