@@ -46,16 +46,6 @@ static int get_port(const char *input, uint16_t *port)
     return SUCCESS;
 }
 
-static int get_path(const char *input, char *path)
-{
-    path = realpath(input, path);
-    if (path == NULL) {
-        return (FAILURE);
-    }
-    printf("%s\n", path);
-    return SUCCESS;
-}
-
 void shutdown_properly(server_t *my_server)
 {
     close_connection(my_server->listen_sock);
@@ -86,9 +76,11 @@ start_server(const char * const *args)
     uint16_t port;
     socket_t listen_sock;
     server_t *my_server;
-    char *path = nullptr;
+    char *path = realpath(args[1], nullptr);
 
-    if (get_port(args[0], &port) == FAILURE || get_path(args[1], path) == FAILURE)
+    if (!path)
+        return;
+    if (get_port(args[0], &port) == FAILURE)
         return;
     listen_sock = create_tcp_server(port);
     if (listen_sock == INVALID_SOCKET)
