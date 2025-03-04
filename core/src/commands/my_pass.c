@@ -38,6 +38,7 @@ static void handle_anonymous_login(peer_t *conn)
 {
     conn->user_data.state = AUTH;
     conn->user_data.pwd[0] = '/';
+    conn->user_data.pwd[1] = '\0';
 
     if (vector_push_back(conn->sending_buffer,
         "230 User logged in, proceed.\r\n", 30) == VECTOR_FAILURE)
