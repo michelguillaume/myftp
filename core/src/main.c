@@ -48,9 +48,11 @@ static int get_port(const char *input, uint16_t *port)
 
 static int get_path(const char *input, char *path)
 {
-    if (realpath(input, path) == NULL) {
+    path = realpath(input, path);
+    if (path == NULL) {
         return (FAILURE);
     }
+    printf("%s\n", path);
     return SUCCESS;
 }
 

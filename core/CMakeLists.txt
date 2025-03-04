@@ -15,8 +15,10 @@ set(SOURCES
 
         src/commands/my_user.c
         src/commands/my_pass.c
+        src/commands/my_noop.c
+        src/commands/my_help.c
+        src/commands/my_pwd.c
         src/commands/my_cwd.c
-        src/commands/
 )
 
 set(HEADERS

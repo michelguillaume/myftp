@@ -19,19 +19,35 @@
 550 Requested action not taken. File unavailable (e.g., file not found, no access).
 */
 void my_cwd(server_t *srv, char *arg, peer_t *conn) {
-    char *new_path = strdup(conn->user_data.pwd);
+    char new_path[PATH_MAX];
+
+    if (conn->user_data.state == NOT_AUTH)
+    {
+        if (vector_push_back(conn->sending_buffer, "530 Not logged in.\r\n", 20) == VECTOR_FAILURE)
+            fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
+        return;
+    }
     if (!arg) {
-        if (vector_push_back(conn->sending_buffer,
-            "500 Syntax error, command unrecognized.\r\n", 41) == VECTOR_FAILURE)
+       if (vector_push_back(conn->sending_buffer,
+           "500 Syntax error, command unrecognized.\r\n", 41) == VECTOR_FAILURE)
+           fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+       return;
+   }
+    if (conn->user_data.pwd[strlen(conn->user_data.pwd) - 1] == '/')
+        snprintf(new_path, PATH_MAX, "%s%s%s",srv->path, conn->user_data.pwd, arg);
+    else
+        snprintf(new_path, PATH_MAX, "%s%s/%s",srv->path, conn->user_data.pwd, arg);
+    char *tmp = realpath(new_path, conn->user_data.pwd);
+    printf("%s\n %s\n %s",conn->user_data.pwd, srv->path,arg);
+    if (tmp == NULL) {
+        printf("%s\n", new_path);
+        if (vector_push_back(conn->sending_buffer, "501 Syntax"
+            " error in parameters or arguments.\r\n", 46) == VECTOR_FAILURE)
             fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
         return;
     }
-    if (vector_push_back(new_path, arg, sizeof(arg)) == VECTOR_FAILURE) {
-        return;
-    }
-    if (realpath(new_path, conn->user_data.pwd) == NULL) {
-        return;
-    }
     memset(conn->user_data.pwd, 0, sizeof(conn->user_data.pwd));
-    memmove(conn->user_data.pwd, new_path, strlen(new_path));
+    memmove(conn->user_data.pwd, tmp, strlen(new_path));
+    if (vector_push_back(conn->sending_buffer, "250\r\n", 5) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
 }
