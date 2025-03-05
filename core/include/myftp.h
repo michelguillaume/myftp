@@ -96,5 +96,6 @@ void my_help(server_t *, char *, peer_t *conn);
 void my_pwd(server_t *srv, char *arg, peer_t *conn);
 void my_cwd(server_t *srv, char *arg, peer_t *conn);
 void my_cdup(server_t *srv, char *arg, peer_t *conn);
+void my_dele(server_t *srv, char *arg, peer_t *conn);
 
 #endif

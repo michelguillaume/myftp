@@ -20,6 +20,7 @@ set(SOURCES
         src/commands/my_pwd.c
         src/commands/my_cwd.c
         src/commands/my_cdup.c
+        src/commands/my_dele.c
 )
 
 set(HEADERS
