@@ -19,6 +19,7 @@ set(SOURCES
         src/commands/my_help.c
         src/commands/my_pwd.c
         src/commands/my_cwd.c
+        src/commands/my_cdup.c
 )
 
 set(HEADERS

@@ -41,15 +41,12 @@ void my_cwd(server_t *srv, char *arg, peer_t *conn) {
     else
         snprintf(new_path, PATH_MAX, "%s%s/%s",srv->path, conn->user_data.pwd, arg);
     tmp = realpath(new_path, nullptr);
-    printf("%s\n",new_path);
-    printf("%s\n",tmp);
     if (tmp == NULL) {
         if (vector_push_back(conn->sending_buffer, "501 Syntax"
             " error in parameters or arguments.\r\n", 46) == VECTOR_FAILURE)
             fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
         return;
     }
-    printf("user pwd before: %s\n",conn->user_data.pwd);
     snprintf(new_arg, PATH_MAX, "%s/%s",conn->user_data.pwd, arg);
     memmove(conn->user_data.pwd, new_arg, strlen(new_arg));
     printf("user pwd : %s\n",conn->user_data.pwd);
