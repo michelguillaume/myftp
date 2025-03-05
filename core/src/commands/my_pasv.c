@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2025
 ** myftp
 ** File description:
-** my_cdup.c
+** my_pasv.c
 */
 
 #include "myftp.h"
@@ -32,35 +32,11 @@ static int verify_args(const char *arg, peer_t *conn)
     return SUCCESS;
 }
 
-static void update_pwd_to_parent(char *pwd)
-{
-    char *last_slash = strrchr(pwd, '/');
-
-    if (last_slash != NULL) {
-        if (last_slash == pwd)
-            pwd[1] = '\0';
-        else
-            *last_slash = '\0';
-    }
-}
-
-static void send_success(peer_t *conn)
-{
-    if (vector_push_back(conn->sending_buffer,
-        "250 Requested file action okay, completed.\r\n", 44) == VECTOR_FAILURE)
-        fprintf(stderr, "Error: Failed to push success message to sending_buffer\n");
-}
-
-void my_cdup(server_t *, char *arg, peer_t *conn)
+void my_pasv(server_t *srv, char *arg, peer_t *conn)
 {
     if (verify_auth(conn) == FAILURE)
         return;
     if (verify_args(arg, conn) == FAILURE)
         return;
-    if (strcmp(conn->user_data.pwd, "/") == 0) {
-        send_success(conn);
-        return;
-    }
-    update_pwd_to_parent(conn->user_data.pwd);
-    send_success(conn);
+
 }

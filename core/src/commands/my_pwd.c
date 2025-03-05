@@ -8,37 +8,45 @@
 #include "myftp.h"
 #include "cvector.h"
 
-static int test_arg_pwd(char *arg, peer_t *conn)
+static void send_error(peer_t *conn, const char *msg, int len)
 {
-    if (arg != NULL) {
-        if (vector_push_back(conn->sending_buffer, "501 Syntax error in"
-            " parameters or arguments.\r\n", 46) == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push message"
-                " to sending_buffer\n");
+    if (vector_push_back(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
+}
+
+static int verify_auth(peer_t *conn)
+{
+    if (conn->user_data.state != AUTH) {
+        send_error(conn, "530 Not logged in.\r\n", 20);
         return FAILURE;
     }
     return SUCCESS;
 }
 
+static int verify_args(char *arg, peer_t *conn)
+{
+    if (arg && arg[0] != '\0') {
+        send_error(conn, "501 Syntax error in parameters or arguments.\r\n", 46);
+        return FAILURE;
+    }
+    return SUCCESS;
+}
+
+static void send_pwd_response(peer_t *conn)
+{
+    char response[PATH_MAX + 32];
+
+    snprintf(response, sizeof(response),
+             "257 \"%s\" is current directory.\r\n", conn->user_data.pwd);
+    if (vector_push_back(conn->sending_buffer, response, strlen(response)) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
+}
+
 void my_pwd(server_t *srv, char *arg, peer_t *conn)
 {
-    if (conn->user_data.state == AUTH) {
-        if (test_arg_pwd(arg, conn) == FAILURE)
-            return;
-        if (vector_push_back(conn->sending_buffer, "257 ", 4)
-                == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push message"
-                            "to sending_buffer\n");
-        if (vector_push_back(conn->sending_buffer, conn->user_data.pwd,
-                strlen(conn->user_data.pwd)) == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push message"
-                            "to sending_buffer\n");
-        if (vector_push_back(conn->sending_buffer, " is"
-            " on directory\n\r", 18) == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push message"
-                            "to sending_buffer\n");
-    } else {
-        if (vector_push_back(conn->sending_buffer, "530 Not logged in.\r\n", 20) == VECTOR_FAILURE)
-            fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
-    }
+    if (verify_auth(conn) == FAILURE)
+        return;
+    if (verify_args(arg, conn) == FAILURE)
+        return;
+    send_pwd_response(conn);
 }
