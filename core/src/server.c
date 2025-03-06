@@ -32,6 +32,7 @@ static int init_peer_connection(peer_t* conn, socket_t client_sock, struct socka
     conn->address = client_addr;
     conn->mode = MODE_NONE;
     conn->data_socket = INVALID_SOCKET;
+    conn->should_quit = false;
     conn->user_data = (user_data_t){NOT_AUTH, {0}, {0}};
     return SUCCESS;
 }
@@ -154,6 +155,10 @@ void process_socket(server_t* srv, int idx)
         return;
     }
     if (srv->pfds[idx].revents & POLLOUT && send_to_peer(conn) == FAILURE) {
+        close_client_connection(srv, conn, idx);
+    }
+    if (conn->should_quit == true
+        && vector_size(conn->sending_buffer) == 0) {
         close_client_connection(srv, conn, idx);
     }
 }

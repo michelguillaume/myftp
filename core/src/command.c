@@ -22,17 +22,7 @@ static fnct_ptr_t commands[] = {
 {"LIST", my_list},
 {"RETR", my_retr},
 {"STOR", my_stor},
-    /*
-
-    {"QUIT", my_quit},
-
-
-    {"PASV", my_pasv},
-    {"PORT", my_port},
-    {"RETR", my_retr},
-    {"STOR", my_stor},
-    {"LIST", my_list},
-     */
+{"QUIT", my_quit}
 };
 
 #ifdef __APPLE__

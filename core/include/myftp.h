@@ -21,6 +21,7 @@
     #include <signal.h>
     #include <string.h>
     #include <limits.h>
+    #include <stdbool.h>
 
     #include <poll.h>
     #include <netinet/in.h>
@@ -71,6 +72,7 @@ typedef struct {
     user_data_t user_data;
     socket_t data_socket;
     transfer_mode_t mode;
+    int should_quit;
 } peer_t;
 
 //typedef struct server_data {
@@ -112,5 +114,6 @@ void my_port(server_t *srv, char *arg, peer_t *conn);
 void my_list(server_t *srv, char *arg, peer_t *conn);
 void my_retr(server_t *srv, char *arg, peer_t *conn);
 void my_stor(server_t *srv, char *arg, peer_t *conn);
+void my_quit(server_t *, char *, peer_t *conn);
 
 #endif

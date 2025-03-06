@@ -26,6 +26,7 @@ set(SOURCES
         src/commands/my_list.c
         src/commands/my_retr.c
         src/commands/my_stor.c
+        src/commands/my_quit.c
 )
 
 set(HEADERS
