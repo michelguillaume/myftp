@@ -2,6 +2,12 @@
 #include "cvector.h"
 #include "myftp.h"
 #include "net_utils.h"
+#include <unistd.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 static void help(void)
 {
@@ -57,6 +63,7 @@ setup_server(server_t *my_server, socket_t listen_sock, uint16_t port, char *pat
     my_server->listen_sock = listen_sock;
     my_server->port = port;
     my_server->path = path;
+    my_server->ip = strdup("0.0.0.0");
     my_server->connection_list = VECTOR(peer_t, 1024);
     if (my_server->connection_list == nullptr)
         shutdown_properly(my_server);
@@ -66,9 +73,33 @@ setup_server(server_t *my_server, socket_t listen_sock, uint16_t port, char *pat
     my_server->pfds[0].fd = listen_sock;
     my_server->pfds[0].events = POLLIN;
     vector_size(my_server->pfds) = 1;
-
-//    init_server_data(&my_server->server_data);
 }
+
+/*
+int init_server_ip(server_t *srv)
+{
+    char hostname[256];
+    struct hostent *host_entry;
+
+    if (gethostname(hostname, sizeof(hostname)) != 0) {
+        perror("gethostname");
+        exit(EXIT_FAILURE);
+    }
+    host_entry = gethostbyname(hostname);
+    if (host_entry == NULL) {
+        fprintf(stderr, "Error: Cannot resolve hostname.\n");
+        exit(EXIT_FAILURE);
+    }
+    srv->ip = strdup(inet_ntoa(*(struct in_addr*)host_entry->h_addr_list[0]));
+    if (srv->ip == NULL)
+    {
+        perror("strdup");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("IP: %s\n", srv->ip);
+}
+*/
 
 static void
 start_server(const char * const *args)

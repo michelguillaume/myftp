@@ -18,6 +18,8 @@ static fnct_ptr_t commands[] = {
 {"CDUP", my_cdup},
 {"DELE", my_dele},
 {"PASV", my_pasv},
+{"PORT", my_port},
+{"LIST", my_list},
     /*
 
     {"QUIT", my_quit},

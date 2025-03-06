@@ -30,6 +30,8 @@ static int init_peer_connection(peer_t* conn, socket_t client_sock, struct socka
     }
     conn->socket = client_sock;
     conn->address = client_addr;
+    conn->mode = MODE_NONE;
+    conn->data_socket = INVALID_SOCKET;
     conn->user_data = (user_data_t){NOT_AUTH, {0}, {0}};
     return SUCCESS;
 }

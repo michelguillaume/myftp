@@ -42,7 +42,7 @@ static void send_pwd_response(peer_t *conn)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 
-void my_pwd(server_t *srv, char *arg, peer_t *conn)
+void my_pwd(server_t *, char *arg, peer_t *conn)
 {
     if (verify_auth(conn) == FAILURE)
         return;

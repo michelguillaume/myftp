@@ -92,12 +92,9 @@ static int check_directory(const char *resolved)
     return (SUCCESS);
 }
 
-static int update_virtual_path(server_t *srv, peer_t *conn, const char *resolved)
+static int update_virtual_path(peer_t *conn, const char *resolved,
+    const size_t root_len)
 {
-    const size_t root_len = strlen(srv->path);
-
-    if (strncmp(resolved, srv->path, root_len) != 0)
-        return (FAILURE);
     if (resolved[root_len] == '\0') {
         conn->user_data.pwd[0] = '/';
         conn->user_data.pwd[1] = '\0';
@@ -110,7 +107,8 @@ static int update_virtual_path(server_t *srv, peer_t *conn, const char *resolved
 static int update_pwd(server_t *srv, peer_t *conn, char *new_dir)
 {
     char new_pwd[PATH_MAX];
-    char resolved[PATH_MAX];
+    char resolved[PATH_MAX] = {0};
+    const size_t root_len = strlen(srv->path);
 
     if (new_dir[0] == '/') {
         snprintf(new_pwd, sizeof(new_pwd), "%s%s", srv->path, new_dir);
@@ -119,10 +117,11 @@ static int update_pwd(server_t *srv, peer_t *conn, char *new_dir)
     }
     if (realpath(new_pwd, resolved) == NULL)
         return FAILURE;
+    if (strncmp(resolved, srv->path, root_len) != 0)
+        return FAILURE;
     if (check_directory(resolved) == FAILURE)
         return FAILURE;
-    if (update_virtual_path(srv, conn, resolved) == FAILURE)
-        return FAILURE;
+    update_virtual_path(conn, resolved, root_len);
     return SUCCESS;
 }
 

@@ -57,12 +57,20 @@ typedef struct {
     char pwd[PATH_MAX];
 } user_data_t;
 
+typedef enum {
+    MODE_NONE = 0,
+    MODE_ACTIVE,
+    MODE_PASSIVE
+} transfer_mode_t;
+
 typedef struct {
     socket_t socket;
     struct sockaddr_in address;
     char *sending_buffer;
     char *receiving_buffer;
     user_data_t user_data;
+    socket_t data_socket;
+    transfer_mode_t mode;
 } peer_t;
 
 //typedef struct server_data {
@@ -76,6 +84,8 @@ typedef struct {
     char *path;
     peer_t *connection_list;
     struct pollfd *pfds;
+
+    char *ip;
     //server_data_t server_data;
 } server_t;
 
@@ -98,5 +108,7 @@ void my_cwd(server_t *srv, char *arg, peer_t *conn);
 void my_cdup(server_t *srv, char *arg, peer_t *conn);
 void my_dele(server_t *srv, char *arg, peer_t *conn);
 void my_pasv(server_t *srv, char *arg, peer_t *conn);
+void my_port(server_t *srv, char *arg, peer_t *conn);
+void my_list(server_t *srv, char *arg, peer_t *conn);
 
 #endif

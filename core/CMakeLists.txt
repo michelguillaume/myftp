@@ -22,6 +22,8 @@ set(SOURCES
         src/commands/my_cdup.c
         src/commands/my_dele.c
         src/commands/my_pasv.c
+        src/commands/my_port.c
+        src/commands/my_list.c
 )
 
 set(HEADERS
