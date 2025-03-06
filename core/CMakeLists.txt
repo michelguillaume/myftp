@@ -24,6 +24,8 @@ set(SOURCES
         src/commands/my_pasv.c
         src/commands/my_port.c
         src/commands/my_list.c
+        src/commands/my_retr.c
+        src/commands/my_stor.c
 )
 
 set(HEADERS

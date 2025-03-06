@@ -20,6 +20,8 @@ static fnct_ptr_t commands[] = {
 {"PASV", my_pasv},
 {"PORT", my_port},
 {"LIST", my_list},
+{"RETR", my_retr},
+{"STOR", my_stor},
     /*
 
     {"QUIT", my_quit},
@@ -60,6 +62,7 @@ void process_command(server_t *srv, peer_t *conn)
             return;
         }
     }
-    if (vector_push_back(conn->sending_buffer, "500\r\n", 5) == VECTOR_FAILURE)
-        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+    if (vector_push_back(conn->sending_buffer,
+        "500 Syntax error, command unrecognized.\r\n", 41) == VECTOR_FAILURE)
+        fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }

@@ -31,7 +31,7 @@ static int check_access(const char *full_path)
     return SUCCESS;
 }
 
-static void exec_ls_listing(const char *full_dir, peer_t *conn)
+static void exec_ls(const char *full_dir, peer_t *conn)
 {
     int data_sock;
 
@@ -46,6 +46,7 @@ static void exec_ls_listing(const char *full_dir, peer_t *conn)
     }
     if (dup2(data_sock, STDOUT_FILENO) < 0) {
         perror("dup2");
+        close(data_sock);
         exit(EXIT_FAILURE);
     }
     close(data_sock);
@@ -66,7 +67,7 @@ static void run_listing(const char *full_dir, peer_t *conn)
         return;
     }
     if (pid == 0) {
-        exec_ls_listing(full_dir, conn);
+        exec_ls(full_dir, conn);
     }
     close(conn->data_socket);
     conn->data_socket = INVALID_SOCKET;
@@ -108,7 +109,6 @@ void my_list(server_t *srv, char *arg, peer_t *conn)
     }
     if (process_list(srv, arg, conn) == FAILURE) {
         send_message(conn, "450 Requested file action not taken.\r\n", 38);
-        return;
     }
     send_message(conn, "226 Closing data connection.\r\n", 30);
 }
