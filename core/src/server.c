@@ -17,15 +17,17 @@ void update_pfds(peer_t* connection_list, struct pollfd* pfds)
 
 static int init_peer_connection(peer_t* conn, socket_t client_sock, struct sockaddr_in client_addr)
 {
-    conn->receiving_buffer = VECTOR(char, 1024);
-    if (conn->receiving_buffer == NULL) {
-        fprintf(stderr, "Error: Failed to allocate receiving buffer\n");
+    conn->sending_buffer = VECTOR(char, 1024);
+    if (conn->sending_buffer == NULL)
+        return FAILURE;
+    if (vector_push_back(conn->sending_buffer,
+        "220 Service ready for new user.\r\n", 33) == VECTOR_FAILURE) {
+        vector_destroy(conn->receiving_buffer);
         return FAILURE;
     }
-    conn->sending_buffer = VECTOR(char, 1024);
-    if (conn->sending_buffer == NULL) {
-        fprintf(stderr, "Error: Failed to allocate sending buffer\n");
-        vector_destroy(conn->receiving_buffer);
+    conn->receiving_buffer = VECTOR(char, 1024);
+    if (conn->receiving_buffer == NULL) {
+        vector_destroy(conn->sending_buffer);
         return FAILURE;
     }
     conn->socket = client_sock;
@@ -41,20 +43,17 @@ void handle_accepted_connection(server_t* srv, socket_t client_sock, struct sock
 {
     peer_t conn = {0};
 
-    if (init_peer_connection(&conn, client_sock, client_addr) == VECTOR_FAILURE) {
+    if (init_peer_connection(&conn, client_sock, client_addr) == FAILURE) {
         close_connection(client_sock);
         return;
     }
     if (vector_push_back(srv->connection_list, (peer_t[]){conn}, 1) == VECTOR_FAILURE) {
-        fprintf(stderr, "Error: Failed to add peer to connection list\n");
         close_connection(client_sock);
         vector_destroy(conn.receiving_buffer);
         vector_destroy(conn.sending_buffer);
         return;
     }
-    //if (vector_push_back(srv->pfds, ((struct pollfd[]){{.fd = client_sock, .events = POLLIN | POLLRDHUP, .revents = 0}}), 1) == VECTOR_FAILURE) {
     if (vector_push_back(srv->pfds, ((struct pollfd[]){{.fd = client_sock, .events = POLLIN, .revents = 0}}), 1) == VECTOR_FAILURE) {
-        fprintf(stderr, "Error: Failed to add pollfd for new connection\n");
         close_connection(client_sock);
         vector_destroy(conn.receiving_buffer);
         vector_destroy(conn.sending_buffer);
