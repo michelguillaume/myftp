@@ -1,13 +1,13 @@
-#include <stdio.h>
+/*
+** EPITECH PROJECT, 2023
+** myftp
+** File description:
+** main.c
+*/
+
 #include "cvector.h"
 #include "myftp.h"
 #include "net_utils.h"
-#include <unistd.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 static void help(void)
 {
@@ -58,7 +58,8 @@ void shutdown_properly(server_t *my_server)
 }
 
 static void
-setup_server(server_t *my_server, socket_t listen_sock, uint16_t port, char *path)
+setup_server(server_t *my_server, socket_t listen_sock,
+    uint16_t port, char *path)
 {
     my_server->listen_sock = listen_sock;
     my_server->port = port;
@@ -72,7 +73,7 @@ setup_server(server_t *my_server, socket_t listen_sock, uint16_t port, char *pat
         shutdown_properly(my_server);
     my_server->pfds[0].fd = listen_sock;
     my_server->pfds[0].events = POLLIN;
-    vector_size(my_server->pfds) = 1;
+    VECTOR_SIZE(my_server->pfds) = 1;
 }
 
 /*
@@ -101,8 +102,7 @@ int init_server_ip(server_t *srv)
 }
 */
 
-static void
-start_server(const char * const *args)
+static void start_server(const char *const *args)
 {
     uint16_t port;
     socket_t listen_sock;

@@ -6,16 +6,16 @@
 */
 
 #ifndef CVECTOR_H
-#define CVECTOR_H
+    #define CVECTOR_H
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdio.h>
+    #include <unistd.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <stdbool.h>
+    #include <stdio.h>
 
-#define VECTOR_SUCCESS 0
-#define VECTOR_FAILURE 1
+    #define VECTOR_SUCCESS 0
+    #define VECTOR_FAILURE 1
 
 /**
  * @brief Structure for the vector header.
@@ -23,61 +23,61 @@
  * Data starts immediately after this structure.
  */
 typedef struct {
-  size_t size;         // Number of elements currently in the vector
-  size_t capacity;     // Total capacity allocated
-  size_t initial_capacity;
+    size_t size;         // Number of elements currently in the vector
+    size_t capacity;     // Total capacity allocated
+    size_t initial_capacity;
 } vector_header_t;
 
-#if defined(__GNUC__) || defined(__clang__)
-#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#else
-#define WARN_UNUSED_RESULT
-#endif
+    #if defined(__GNUC__) || defined(__clang__)
+        #define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+    #else
+        #define WARN_UNUSED_RESULT
+    #endif
 
-// Access the vector header
-#define VECTOR_HEADER(v) ((vector_header_t*)(v) - 1)
+    // Access the vector header
+    #define VECTOR_HEADER(v) ((vector_header_t *)(v) - 1)
 
-// Get the size of the vector
-#define vector_size(v) VECTOR_HEADER(v)->size
+    // Get the size of the vector
+    #define VECTOR_SIZE(v) (VECTOR_HEADER(v)->size)
 
-// Get the capacity of the vector
-#define vector_capacity(v) ((v) ? VECTOR_HEADER(v)->capacity : 0)
+    // Get the capacity of the vector
+    #define VECTOR_CAPACITY(v) (VECTOR_HEADER(v)->capacity)
 
-// Check if the vector is empty
-#define vector_empty(v) (vector_size(v) == 0)
+    // Check if the vector is empty
+    #define VECTOR_EMPTY(v) (VECTOR_SIZE(v) == 0)
 
-// Get a pointer to the underlying data
-#define vector_data(v) (v)
+    // Get a pointer to the underlying data
+    #define VECTOR_DATA(v) (v)
 
-// Get the first element
-#define vector_front(v) ((v) ? (v) : NULL)
+    // Get the first element
+    #define VECTOR_FRONT(v) (v)
 
-// Get the last element
-#define vector_back(v) ((v) && vector_size(v) > 0 ? (v) + vector_size(v) - 1 : NULL)
+    // Get the last element
+    #define VECTOR_BACK(v) ((v) && VECTOR_SIZE(v) > 0 ? (v) + VECTOR_SIZE(v) - 1 : NULL)
 
-// Create a new vector of type T with initial capacity c
-#define VECTOR(T, c) ((T*)vector_init(sizeof(T), (c)))
+    // Create a new vector of type T with initial capacity c
+    #define VECTOR(T, c) ((T *)vector_init(sizeof(T), (c)))
 
-// Push back n elements (from pointer val) to the vector
-#define vector_push_back(v, val, n) vector_push_back_impl((void**)&(v), (const void*)(val), (n), sizeof(*(v)))
+    // Push back n elements (from pointer val) to the vector
+    #define VECTOR_PUSH_BACK(v, val, n) vector_push_back_impl((void**)&(v), (const void*)(val), (n), sizeof(*(v)))
 
-// Pop back n elements
-#define vector_pop_back(v, n) vector_pop_back_impl((void**)&(v), (n), sizeof(*(v)))
+    // Pop back n elements
+    #define VECTOR_POP_BACK(v, n) vector_pop_back_impl((void**)&(v), (n), sizeof(*(v)))
 
-// Clear the vector (size = 0, but doesn't change capacity)
-#define vector_clear(v) ((v) ? (VECTOR_HEADER(v)->size = 0) : 0)
+    // Clear the vector (size = 0, but doesn't change capacity)
+    #define VECTOR_CLEAR(v) (VECTOR_HEADER(v)->size = 0)
 
-// Destroy the vector completely (free memory)
-#define vector_destroy(v) ((v) ? (free(VECTOR_HEADER(v))), (v)=NULL : 0)
+    // Destroy the vector completely (free memory)
+    #define VECTOR_DESTROY(v) (free(VECTOR_HEADER(v)), (v) = NULL)
 
-// Reserve capacity
-#define vector_reserve(v, n) vector_reserve_impl((void**)&(v), (n), sizeof(*(v)))
+    // Reserve capacity
+    #define VECTOR_RESERVE(v, n) vector_reserve_impl((void **)&(v), (n), sizeof(*(v)))
 
-// Resize the vector (increase or decrease size)
-#define vector_resize(v, new_size) vector_resize_impl((void**)&(v), (new_size), sizeof(*(v)))
+    // Resize the vector (increase or decrease size)
+    #define VECTOR_RESIZE(v, new_size) vector_resize_impl((void **)&(v), (new_size), sizeof(*(v)))
 
-// Shrink to fit (reduce capacity to current size)
-#define vector_shrink_to_fit(v) vector_shrink_to_fit_impl((void**)&(v), sizeof(*(v)))
+    // Shrink to fit (reduce capacity to current size)
+    #define VECTOR_SHRINK_TO_FIT(v) vector_shrink_to_fit_impl((void**)&(v), sizeof(*(v)))
 
 // Insert elements at the specified index
 #define vector_insert(v, index, val, count) vector_insert_impl((void**)&(v), (index), (val), (count), sizeof(*(v)))

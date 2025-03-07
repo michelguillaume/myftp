@@ -1,11 +1,16 @@
-
+/*
+** EPITECH PROJECT, 2025
+** myftp
+** File description:
+** my_quit.c
+*/
 
 #include "myftp.h"
 #include "cvector.h"
 
 static void send_message(peer_t *conn, const char *msg, int len)
 {
-    if (vector_push_back(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
+    if (VECTOR_PUSH_BACK(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 

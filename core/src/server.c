@@ -1,13 +1,18 @@
-#include <math.h>
-#include <net_utils.h>
+/*
+** EPITECH PROJECT, 2023
+** myftp
+** File description:
+** server.c
+*/
 
 #include "cvector.h"
 #include "myftp.h"
+#include "net_utils.h"
 
-void update_pfds(peer_t* connection_list, struct pollfd* pfds)
+static void update_pfds(peer_t* connection_list, struct pollfd* pfds)
 {
-    for (int i = 1; i <= vector_size(connection_list); i++) {
-        if (vector_size(connection_list[i - 1].sending_buffer) != 0) {
+    for (int i = 1; i <= VECTOR_SIZE(connection_list); i++) {
+        if (VECTOR_SIZE(connection_list[i - 1].sending_buffer) != 0) {
             pfds[i].events |= POLLOUT;
         } else {
             pfds[i].events &= ~POLLOUT;
@@ -15,19 +20,20 @@ void update_pfds(peer_t* connection_list, struct pollfd* pfds)
     }
 }
 
-static int init_peer_connection(peer_t* conn, socket_t client_sock, struct sockaddr_in client_addr)
+static int init_peer_connection(peer_t *conn,
+    const socket_t client_sock, const struct sockaddr_in client_addr)
 {
     conn->sending_buffer = VECTOR(char, 1024);
     if (conn->sending_buffer == NULL)
         return FAILURE;
-    if (vector_push_back(conn->sending_buffer,
+    if (VECTOR_PUSH_BACK(conn->sending_buffer,
         "220 Service ready for new user.\r\n", 33) == VECTOR_FAILURE) {
-        vector_destroy(conn->receiving_buffer);
+        VECTOR_DESTROY(conn->receiving_buffer);
         return FAILURE;
     }
     conn->receiving_buffer = VECTOR(char, 1024);
     if (conn->receiving_buffer == NULL) {
-        vector_destroy(conn->sending_buffer);
+        VECTOR_DESTROY(conn->sending_buffer);
         return FAILURE;
     }
     conn->socket = client_sock;
@@ -39,7 +45,8 @@ static int init_peer_connection(peer_t* conn, socket_t client_sock, struct socka
     return SUCCESS;
 }
 
-void handle_accepted_connection(server_t* srv, socket_t client_sock, struct sockaddr_in client_addr)
+static void handle_accepted_connection(server_t* srv,
+    const socket_t client_sock, const struct sockaddr_in client_addr)
 {
     peer_t conn = {0};
 
@@ -47,31 +54,35 @@ void handle_accepted_connection(server_t* srv, socket_t client_sock, struct sock
         close_connection(client_sock);
         return;
     }
-    if (vector_push_back(srv->connection_list, (peer_t[]){conn}, 1) == VECTOR_FAILURE) {
+    if (VECTOR_PUSH_BACK(srv->connection_list, (peer_t[]){conn}, 1)
+        == VECTOR_FAILURE) {
         close_connection(client_sock);
-        vector_destroy(conn.receiving_buffer);
-        vector_destroy(conn.sending_buffer);
+        VECTOR_DESTROY(conn.receiving_buffer);
+        VECTOR_DESTROY(conn.sending_buffer);
         return;
     }
-    if (vector_push_back(srv->pfds, ((struct pollfd[]){{.fd = client_sock, .events = POLLIN, .revents = 0}}), 1) == VECTOR_FAILURE) {
+    if (VECTOR_PUSH_BACK(srv->pfds,
+        ((struct pollfd[]){{.fd = client_sock,
+        .events = POLLIN, .revents = 0}}), 1) == VECTOR_FAILURE) {
         close_connection(client_sock);
-        vector_destroy(conn.receiving_buffer);
-        vector_destroy(conn.sending_buffer);
+        VECTOR_DESTROY(conn.receiving_buffer);
+        VECTOR_DESTROY(conn.sending_buffer);
     }
 }
 
-void handle_new_connection(server_t* srv)
+static void handle_new_connection(server_t *srv)
 {
     struct sockaddr_in client_addr = {0};
     socklen_t addr_len = sizeof(client_addr);
-    const socket_t client_sock = accept_tcp_connection(srv->listen_sock, (struct sockaddr*)&client_addr, &addr_len);
+    const socket_t client_sock = accept_tcp_connection(srv->listen_sock,
+        (struct sockaddr*)&client_addr, &addr_len);
 
     if (client_sock == INVALID_SOCKET)
         return;
     handle_accepted_connection(srv, client_sock, client_addr);
 }
 
-void handle_listen_socket_events(server_t* srv)
+static void handle_listen_socket_events(server_t *srv)
 {
     if (srv->pfds[0].revents & POLLERR) {
         fprintf(stderr, "Error: Listen socket encountered POLLERR\n");
@@ -82,65 +93,22 @@ void handle_listen_socket_events(server_t* srv)
     }
 }
 
-void close_client_connection(server_t* srv, peer_t* conn, int idx)
+static void close_client_connection(server_t *srv, peer_t *conn, int idx)
 {
     abort_connection(conn->socket);
-    vector_destroy(conn->receiving_buffer);
-    vector_destroy(conn->sending_buffer);
-    if (idx != vector_size(srv->connection_list)) {
-        memmove(srv->connection_list + idx - 1, vector_back(srv->connection_list), sizeof(peer_t));
-        memmove(srv->pfds + idx, vector_back(srv->pfds), sizeof(struct pollfd));
+    VECTOR_DESTROY(conn->receiving_buffer);
+    VECTOR_DESTROY(conn->sending_buffer);
+    if (idx != VECTOR_SIZE(srv->connection_list)) {
+        memmove(srv->connection_list + idx - 1,
+            VECTOR_BACK(srv->connection_list), sizeof(peer_t));
+        memmove(srv->pfds + idx,
+            VECTOR_BACK(srv->pfds), sizeof(struct pollfd));
     }
     VECTOR_HEADER(srv->connection_list)->size--;
     VECTOR_HEADER(srv->pfds)->size--;
 }
 
-void handle_received_packet(server_t* srv, peer_t* conn)
-{
-    char* newline = strstr(conn->receiving_buffer, "\r\n");
-
-    while (newline != NULL) {
-        ((short*)newline)[0] = 0;
-        process_command(srv, conn);
-        vector_erase(conn->receiving_buffer, 0, newline + 2 - conn->receiving_buffer);
-        newline = strstr(conn->receiving_buffer, "\r\n");
-    }
-}
-
-int receive_from_peer(server_t* srv, peer_t* conn)
-{
-    char buffer[1024];
-    const ssize_t bytes_received = receive_data(conn->socket, buffer, sizeof(buffer));
-
-    if (bytes_received <= 0)
-        return FAILURE;
-    if (vector_push_back(conn->receiving_buffer, buffer, bytes_received) == VECTOR_FAILURE) {
-        fprintf(stderr, "Error: Failed to push received data to buffer\n");
-        return FAILURE;
-    }
-    handle_received_packet(srv, conn);
-    return SUCCESS;
-}
-
-
-int send_to_peer(peer_t *conn)
-{
-    const ssize_t bytes_forward = send_data(conn->socket, conn->sending_buffer,
-        vector_size(conn->sending_buffer));
-
-    if (bytes_forward == -1) {
-        printf("Error sending data\n");
-        return FAILURE;
-    }
-    if (bytes_forward != vector_size(conn->sending_buffer)) {
-        vector_erase(conn->sending_buffer, 0, bytes_forward);
-    } else {
-        vector_size(conn->sending_buffer) = 0;
-    }
-    return SUCCESS;
-}
-
-void process_socket(server_t* srv, int idx)
+static void process_socket(server_t *srv, int idx)
 {
     peer_t* conn = srv->connection_list + idx - 1;
 
@@ -149,7 +117,8 @@ void process_socket(server_t* srv, int idx)
         close_client_connection(srv, conn, idx);
         return;
     }
-    if (srv->pfds[idx].revents & POLLIN && receive_from_peer(srv, conn) == FAILURE) {
+    if (srv->pfds[idx].revents & POLLIN
+        && receive_from_peer(srv, conn) == FAILURE) {
         close_client_connection(srv, conn, idx);
         return;
     }
@@ -157,25 +126,25 @@ void process_socket(server_t* srv, int idx)
         close_client_connection(srv, conn, idx);
     }
     if (conn->should_quit == true
-        && vector_size(conn->sending_buffer) == 0) {
+        && VECTOR_SIZE(conn->sending_buffer) == 0) {
         close_client_connection(srv, conn, idx);
     }
 }
 
-void process_client_connections(server_t* srv)
+static void process_client_connections(server_t *srv)
 {
-    for (int i = vector_size(srv->connection_list); i > 0; i--) {
+    for (int i = VECTOR_SIZE(srv->connection_list); i > 0; i--) {
         process_socket(srv, i);
     }
 }
 
-_Noreturn void server_loop(server_t* srv)
+_Noreturn void server_loop(server_t *srv)
 {
     int ready;
 
     while (1) {
         update_pfds(srv->connection_list, srv->pfds);
-        ready = poll(srv->pfds, vector_size(srv->pfds), -1);
+        ready = poll(srv->pfds, VECTOR_SIZE(srv->pfds), -1);
         if (ready == -1) {
             fprintf(stderr, "Error: poll failed: %s\n", strerror(errno));
             continue;

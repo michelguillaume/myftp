@@ -7,12 +7,10 @@
 
 #include "myftp.h"
 #include "cvector.h"
-#include <sys/stat.h>
-#include <fcntl.h>
 
 static void send_message(peer_t *conn, const char *msg, int len)
 {
-    if (vector_push_back(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
+    if (VECTOR_PUSH_BACK(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 
@@ -28,7 +26,8 @@ static int verify_auth(peer_t *conn)
 static int verify_args(char *arg, peer_t *conn)
 {
     if (!arg || arg[0] == '\0') {
-        send_message(conn, "501 Syntax error in parameters or arguments.\r\n", 46);
+        send_message(conn,
+            "501 Syntax error in parameters or arguments.\r\n", 46);
         return FAILURE;
     }
     return SUCCESS;
@@ -76,7 +75,8 @@ static void transfer_file(const char *full_path, int data_sock, peer_t *conn)
     }
     if (copy_data(file_fd, data_sock) < 0) {
         perror("read/write error");
-        write(conn->socket, "426 Connection closed; transfer aborted.\r\n", 42);
+        write(conn->socket,
+            "426 Connection closed; transfer aborted.\r\n", 42);
         close(file_fd);
         close(data_sock);
         exit(EXIT_FAILURE);
@@ -102,17 +102,6 @@ static void exec_retr(const char *full_path, peer_t *conn)
         data_sock = conn->data_socket;
     }
     transfer_file(full_path, data_sock, conn);
-
-/*
-    if (dup2(data_sock, STDOUT_FILENO) < 0) {
-        perror("dup2");
-        exit(EXIT_FAILURE);
-    }
-    close(data_sock);
-    execlp("cat", "cat", full_path, (char *)NULL);
-    perror("execlp");
-    exit(EXIT_FAILURE);
-*/
 }
 
 static void run_retr(const char *full_dir, peer_t *conn)

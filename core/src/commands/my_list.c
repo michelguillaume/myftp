@@ -10,7 +10,7 @@
 
 static void send_message(peer_t *conn, const char *msg, int len)
 {
-    if (vector_push_back(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
+    if (VECTOR_PUSH_BACK(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 
@@ -55,7 +55,8 @@ static void exec_ls(const char *full_dir, peer_t *conn)
     exit(EXIT_FAILURE);
 }
 
-// send_message(conn, "451 Requested action aborted. Local error in processing.\r\n", 58);
+// send_message(conn,
+// "451 Requested action aborted. Local error in processing.\r\n", 58);
 static void run_listing(const char *full_dir, peer_t *conn)
 {
     const pid_t pid = fork();

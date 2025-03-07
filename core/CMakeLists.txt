@@ -2,9 +2,11 @@
 set(SOURCES
         src/main.c
         src/server.c
+        src/server_utils.c
         src/command.c
 
         src/mynetworks.c
+        src/mynetworks_bis.c
         src/create_tcp_socket.c
         src/bind_socket.c
         src/listen_socket.c

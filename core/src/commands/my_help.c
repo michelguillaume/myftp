@@ -10,7 +10,7 @@
 
 void my_help(server_t *, char *, peer_t *conn)
 {
-    if (vector_push_back(conn->sending_buffer,
+    if (VECTOR_PUSH_BACK(conn->sending_buffer,
     "214 : USER <SP> <username> <CRLF>   : Specify user for authentication\n"
     "PASS <SP> <password> <CRLF>   : Specify password for authentication\n"
     "CWD  <SP> <pathname> <CRLF>   : Change working directory\n"

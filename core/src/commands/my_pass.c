@@ -58,9 +58,10 @@
 
 static void send_bad_sequence_error(peer_t *conn)
 {
-    if (vector_push_back(conn->sending_buffer,
+    if (VECTOR_PUSH_BACK(conn->sending_buffer,
         "503 Bad sequence of commands.\r\n", 31) == VECTOR_FAILURE)
-        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+        fprintf(stderr,
+            "Error: Failed to push error message to sending_buffer\n");
 }
 
 static void handle_anonymous_login(peer_t *conn)
@@ -68,17 +69,17 @@ static void handle_anonymous_login(peer_t *conn)
     conn->user_data.state = AUTH;
     conn->user_data.pwd[0] = '/';
     conn->user_data.pwd[1] = '\0';
-
-    if (vector_push_back(conn->sending_buffer,
+    if (VECTOR_PUSH_BACK(conn->sending_buffer,
         "230 User logged in, proceed.\r\n", 30) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 
 static void send_login_incorrect(peer_t *conn)
 {
-    if (vector_push_back(conn->sending_buffer,
+    if (VECTOR_PUSH_BACK(conn->sending_buffer,
         "530 Login incorrect.\r\n", 22) == VECTOR_FAILURE)
-        fprintf(stderr, "Error: Failed to push error message to sending_buffer\n");
+        fprintf(stderr,
+            "Error: Failed to push error message to sending_buffer\n");
 }
 
 void my_pass(server_t *, char *arg, peer_t *conn)

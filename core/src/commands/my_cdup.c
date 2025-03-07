@@ -10,7 +10,7 @@
 
 static void send_error(peer_t *conn, const char *msg, int len)
 {
-    if (vector_push_back(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
+    if (VECTOR_PUSH_BACK(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 
@@ -26,7 +26,8 @@ static int verify_auth(peer_t *conn)
 static int verify_args(const char *arg, peer_t *conn)
 {
     if (arg && arg[0] != '\0') {
-        send_error(conn, "501 Syntax error in parameters or arguments.\r\n", 46);
+        send_error(conn,
+            "501 Syntax error in parameters or arguments.\r\n", 46);
         return FAILURE;
     }
     return SUCCESS;
@@ -46,9 +47,11 @@ static void update_pwd_to_parent(char *pwd)
 
 static void send_success(peer_t *conn)
 {
-    if (vector_push_back(conn->sending_buffer,
-        "250 Requested file action okay, completed.\r\n", 44) == VECTOR_FAILURE)
-        fprintf(stderr, "Error: Failed to push success message to sending_buffer\n");
+    if (VECTOR_PUSH_BACK(conn->sending_buffer,
+        "250 Requested file action okay, completed.\r\n", 44)
+        == VECTOR_FAILURE)
+        fprintf(stderr,
+            "Error: Failed to push success message to sending_buffer\n");
 }
 
 void my_cdup(server_t *, char *arg, peer_t *conn)

@@ -28,20 +28,19 @@ socket_t create_tcp_socket(void);
 bool bind_socket(socket_t sockfd, const char *ip_address, uint16_t port);
 bool listen_socket(socket_t sockfd, int backlog);
 socket_t accept_tcp_connection(socket_t server_sock,
-  struct sockaddr *client_addr, socklen_t *addr_len);
+    struct sockaddr *client_addr, socklen_t *addr_len);
 socket_t accept_tcp_connection_impl(socket_t sockfd,
-  struct sockaddr *client_addr, socklen_t *addr_len);
+    struct sockaddr *client_addr, socklen_t *addr_len);
 int close_connection(socket_t sockfd);
 bool abort_connection(socket_t sockfd);
-
 
 ssize_t send_data(socket_t sockfd, const char *buffer, int length);
 ssize_t receive_data(socket_t sockfd, char *buffer, int length);
 
 bool convert_ip_address(const char *ip_address, uint16_t port,
-  struct sockaddr_in *addr);
+    struct sockaddr_in *addr);
 bool convert_address_to_string(const struct sockaddr_in *addr, char *ip_str,
-  size_t max_length);
+    size_t max_length);
 
 void print_socket_error(const char *message);
 

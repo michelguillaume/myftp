@@ -8,16 +8,9 @@
 #include "myftp.h"
 #include "cvector.h"
 
-#include <libgen.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-
 static void send_message(peer_t *conn, const char *msg, int len)
 {
-    if (vector_push_back(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
+    if (VECTOR_PUSH_BACK(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 
@@ -33,7 +26,8 @@ static int verify_auth(peer_t *conn)
 static int verify_args(char *arg, peer_t *conn)
 {
     if (!arg || arg[0] == '\0') {
-        send_message(conn, "501 Syntax error in parameters or arguments.\r\n", 46);
+        send_message(conn,
+            "501 Syntax error in parameters or arguments.\r\n", 46);
         return FAILURE;
     }
     return SUCCESS;
@@ -43,7 +37,7 @@ static int check_directory(const char *full_path, server_t *srv)
 {
     char dir[PATH_MAX];
     char resolved_dir[PATH_MAX];
-    char* dirname_ptr;
+    char *dirname_ptr;
     const size_t root_len = strlen(srv->path);
 
     strncpy(dir, full_path, sizeof(dir));
@@ -60,15 +54,16 @@ static int check_directory(const char *full_path, server_t *srv)
 
 static int copy_data(int file_fd, int data_sock)
 {
-    ssize_t bytes_read;
     ssize_t bytes_written;
     char buffer[4096];
+    ssize_t bytes_read = read(data_sock, buffer, sizeof(buffer));
 
-    while ((bytes_read = read(data_sock, buffer, sizeof(buffer))) > 0) {
+    while (bytes_read > 0) {
         bytes_written = write(file_fd, buffer, bytes_read);
         if (bytes_written < 0) {
             return -1;
         }
+        bytes_read = read(data_sock, buffer, sizeof(buffer));
     }
     if (bytes_read < 0)
         return -1;
@@ -87,7 +82,8 @@ static void transfer_file(const char *full_path, int data_sock, peer_t *conn)
     }
     if (copy_data(file_fd, data_sock) < 0) {
         perror("read/write error");
-        write(conn->socket, "426 Connection closed; transfer aborted.\r\n", 42);
+        write(conn->socket,
+            "426 Connection closed; transfer aborted.\r\n", 42);
         close(file_fd);
         close(data_sock);
         exit(EXIT_FAILURE);
@@ -137,9 +133,12 @@ static int process_stor(server_t *srv, char *arg, peer_t *conn)
     char new_pwd[PATH_MAX];
 
     if (arg[0] == '/')
+    {
         snprintf(new_pwd, PATH_MAX, "%s%s", srv->path, arg);
-    else
-        snprintf(new_pwd, PATH_MAX, "%s%s/%s", srv->path, conn->user_data.pwd, arg);
+    } else {
+        snprintf(new_pwd, PATH_MAX, "%s%s/%s",
+            srv->path, conn->user_data.pwd, arg);
+    }
     if (check_directory(new_pwd, srv) == FAILURE)
         return FAILURE;
     run_stor(new_pwd, conn);
@@ -153,7 +152,8 @@ void my_stor(server_t *srv, char *arg, peer_t *conn)
         return;
     if (verify_args(arg, conn) == FAILURE)
         return;
-    send_message(conn, "150 File status okay; about to open data connection.\r\n", 54);
+    send_message(conn,
+        "150 File status okay; about to open data connection.\r\n", 54);
     if (conn->data_socket == INVALID_SOCKET) {
         send_message(conn, "425 Can't open data connection.\r\n", 33);
         return;

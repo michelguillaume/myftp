@@ -7,7 +7,8 @@
 
 #include "net_utils.h"
 
-bool convert_address_to_string(const struct sockaddr_in *addr, char *ip_str, size_t max_length)
+bool convert_address_to_string(const struct sockaddr_in *addr,
+    char *ip_str, size_t max_length)
 {
     if (max_length < INET_ADDRSTRLEN) {
         fprintf(stderr, "Buffer too small for IP address\n");

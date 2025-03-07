@@ -22,6 +22,10 @@
     #include <string.h>
     #include <limits.h>
     #include <stdbool.h>
+    #include <libgen.h>
+    #include <fcntl.h>
+    #include <sys/stat.h>
+    #include <math.h>
 
     #include <poll.h>
     #include <netinet/in.h>
@@ -98,8 +102,8 @@ typedef struct {
 
 _Noreturn void server_loop(server_t *srv);
 void process_command(server_t *srv, peer_t *conn);
-void close_client_connection(server_t *srv, peer_t *conn, int idx);
-void handle_new_connection(server_t *srv);
+int receive_from_peer(server_t *srv, peer_t *conn);
+int send_to_peer(peer_t *conn);
 
 void my_user(server_t *srv, char *arg, peer_t *conn);
 void my_pass(server_t *srv, char *arg, peer_t *conn);

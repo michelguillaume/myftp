@@ -10,7 +10,7 @@
 
 void my_noop(server_t *, char *, peer_t *conn)
 {
-    if (vector_push_back(conn->sending_buffer,
+    if (VECTOR_PUSH_BACK(conn->sending_buffer,
         "200\r\n", 5) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }

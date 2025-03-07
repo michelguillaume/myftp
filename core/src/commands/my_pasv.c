@@ -13,7 +13,7 @@
 
 static void send_error(peer_t *conn, const char *msg, int len)
 {
-    if (vector_push_back(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
+    if (VECTOR_PUSH_BACK(conn->sending_buffer, msg, len) == VECTOR_FAILURE)
         fprintf(stderr, "Error: Failed to push message to sending_buffer\n");
 }
 
@@ -29,7 +29,8 @@ static int verify_auth(peer_t *conn)
 static int verify_args(const char *arg, peer_t *conn)
 {
     if (arg && arg[0] != '\0') {
-        send_error(conn, "501 Syntax error in parameters or arguments.\r\n", 46);
+        send_error(conn,
+            "501 Syntax error in parameters or arguments.\r\n", 46);
         return FAILURE;
     }
     return SUCCESS;
@@ -86,9 +87,9 @@ static void send_pasv_response(server_t *srv, peer_t *conn, int port)
 
     sscanf(srv->ip, "%d.%d.%d.%d", &h1, &h2, &h3, &h4);
     snprintf(response, sizeof(response),
-             "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d).\r\n",
-             h1, h2, h3, h4, p1, p2);
-    if (vector_push_back(conn->sending_buffer, response, strlen(response))
+        "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d).\r\n",
+        h1, h2, h3, h4, p1, p2);
+    if (VECTOR_PUSH_BACK(conn->sending_buffer, response, strlen(response))
         == VECTOR_FAILURE) {
         fprintf(stderr, "Error: Failed to push PASV response\n");
     }
@@ -97,13 +98,8 @@ static void send_pasv_response(server_t *srv, peer_t *conn, int port)
 static void setup_pasv_data_socket(server_t *srv, peer_t *conn)
 {
     int port;
-    int data_sock;
+    int data_sock = create_pasv_socket();
 
-    if (conn->data_socket != INVALID_SOCKET) {
-        close(conn->data_socket);
-        conn->data_socket = INVALID_SOCKET;
-    }
-    data_sock = create_pasv_socket();
     if (data_sock < 0) {
         send_error(conn, "421 Service not available.\r\n", 30);
         return;
@@ -125,5 +121,9 @@ void my_pasv(server_t *srv, char *arg, peer_t *conn)
         return;
     if (verify_args(arg, conn) == FAILURE)
         return;
+    if (conn->data_socket != INVALID_SOCKET) {
+        close(conn->data_socket);
+        conn->data_socket = INVALID_SOCKET;
+    }
     setup_pasv_data_socket(srv, conn);
 }
