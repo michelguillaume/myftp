@@ -45,6 +45,22 @@ static int init_peer_connection(peer_t *conn,
     return SUCCESS;
 }
 
+static void add_client_pollfd(server_t *srv,
+    socket_t client_sock, peer_t *conn)
+{
+    const struct pollfd client_pfd = {
+        .fd = client_sock,
+        .events = POLLIN,
+        .revents = 0
+    };
+
+    if (VECTOR_PUSH_BACK(srv->pfds, &client_pfd, 1) == VECTOR_FAILURE) {
+        close_connection(client_sock);
+        VECTOR_DESTROY(conn->receiving_buffer);
+        VECTOR_DESTROY(conn->sending_buffer);
+    }
+}
+
 static void handle_accepted_connection(server_t *srv,
     const socket_t client_sock, const struct sockaddr_in *client_addr)
 {
@@ -61,13 +77,7 @@ static void handle_accepted_connection(server_t *srv,
         VECTOR_DESTROY(conn.sending_buffer);
         return;
     }
-    if (VECTOR_PUSH_BACK(srv->pfds,
-        ((struct pollfd[]){{.fd = client_sock,
-        .events = POLLIN, .revents = 0}}), 1) == VECTOR_FAILURE) {
-        close_connection(client_sock);
-        VECTOR_DESTROY(conn.receiving_buffer);
-        VECTOR_DESTROY(conn.sending_buffer);
-    }
+    add_client_pollfd(srv, client_sock, &conn);
 }
 
 static void handle_new_connection(server_t *srv)
