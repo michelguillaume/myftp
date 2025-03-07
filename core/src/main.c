@@ -9,6 +9,32 @@
 #include "myftp.h"
 #include "net_utils.h"
 
+/*
+int init_server_ip(server_t *srv)
+{
+    char hostname[256];
+    struct hostent *host_entry;
+
+    if (gethostname(hostname, sizeof(hostname)) != 0) {
+        perror("gethostname");
+        exit(EXIT_FAILURE);
+    }
+    host_entry = gethostbyname(hostname);
+    if (host_entry == NULL) {
+        fprintf(stderr, "Error: Cannot resolve hostname.\n");
+        exit(EXIT_FAILURE);
+    }
+    srv->ip = strdup(inet_ntoa(*(struct in_addr*)host_entry->h_addr_list[0]));
+    if (srv->ip == NULL)
+    {
+        perror("strdup");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("IP: %s\n", srv->ip);
+}
+*/
+
 static void help(void)
 {
     (void)puts("USAGE: ./myftp port path\n"
@@ -75,32 +101,6 @@ setup_server(server_t *my_server, socket_t listen_sock,
     my_server->pfds[0].events = POLLIN;
     VECTOR_SIZE(my_server->pfds) = 1;
 }
-
-/*
-int init_server_ip(server_t *srv)
-{
-    char hostname[256];
-    struct hostent *host_entry;
-
-    if (gethostname(hostname, sizeof(hostname)) != 0) {
-        perror("gethostname");
-        exit(EXIT_FAILURE);
-    }
-    host_entry = gethostbyname(hostname);
-    if (host_entry == NULL) {
-        fprintf(stderr, "Error: Cannot resolve hostname.\n");
-        exit(EXIT_FAILURE);
-    }
-    srv->ip = strdup(inet_ntoa(*(struct in_addr*)host_entry->h_addr_list[0]));
-    if (srv->ip == NULL)
-    {
-        perror("strdup");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("IP: %s\n", srv->ip);
-}
-*/
 
 static void start_server(const char *const *args)
 {

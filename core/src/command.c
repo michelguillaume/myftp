@@ -9,20 +9,20 @@
 #include "cvector.h"
 
 static const fnct_ptr_t commands[] = {
-{"USER", my_user},
-{"PASS", my_pass},
-{"NOOP", my_noop},
-{"HELP", my_help},
-{"PWD", my_pwd},
-{"CWD", my_cwd},
-{"CDUP", my_cdup},
-{"DELE", my_dele},
-{"PASV", my_pasv},
-{"PORT", my_port},
-{"LIST", my_list},
-{"RETR", my_retr},
-{"STOR", my_stor},
-{"QUIT", my_quit}
+    {"USER", my_user},
+    {"PASS", my_pass},
+    {"NOOP", my_noop},
+    {"HELP", my_help},
+    {"PWD", my_pwd},
+    {"CWD", my_cwd},
+    {"CDUP", my_cdup},
+    {"DELE", my_dele},
+    {"PASV", my_pasv},
+    {"PORT", my_port},
+    {"LIST", my_list},
+    {"RETR", my_retr},
+    {"STOR", my_stor},
+    {"QUIT", my_quit}
 };
 
 #ifdef __APPLE__

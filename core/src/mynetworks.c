@@ -29,12 +29,14 @@ socket_t accept_tcp_connection(socket_t server_sock,
     struct sockaddr *client_addr, socklen_t *addr_len)
 {
     char client_ip[INET_ADDRSTRLEN] = {0};
-    socket_t client_sock = accept_tcp_connection_impl(server_sock, client_addr, addr_len);
+    socket_t client_sock =
+        accept_tcp_connection_impl(server_sock, client_addr, addr_len);
 
     if (client_sock == INVALID_SOCKET) {
         return client_sock;
     }
-    if (convert_address_to_string((struct sockaddr_in *) client_addr, client_ip, INET_ADDRSTRLEN)) {
+    if (convert_address_to_string(
+        (struct sockaddr_in *)client_addr, client_ip, INET_ADDRSTRLEN)) {
         printf("Connection accepted from %s\n", client_ip);
     }
     return client_sock;

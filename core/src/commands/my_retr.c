@@ -48,15 +48,16 @@ static int check_access(const char *full_path)
 
 static int copy_data(int file_fd, int data_sock)
 {
-    ssize_t bytes_read;
     ssize_t bytes_written;
     char buffer[4096];
+    ssize_t bytes_read = read(file_fd, buffer, sizeof(buffer));
 
-    while ((bytes_read = read(file_fd, buffer, sizeof(buffer))) > 0) {
+    while (bytes_read > 0) {
         bytes_written = write(data_sock, buffer, bytes_read);
         if (bytes_written < 0) {
             return -1;
         }
+        bytes_read = read(file_fd, buffer, sizeof(buffer));
     }
     if (bytes_read < 0)
         return -1;

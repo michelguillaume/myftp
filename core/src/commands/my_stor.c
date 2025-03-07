@@ -132,8 +132,7 @@ static int process_stor(server_t *srv, char *arg, peer_t *conn)
 {
     char new_pwd[PATH_MAX];
 
-    if (arg[0] == '/')
-    {
+    if (arg[0] == '/') {
         snprintf(new_pwd, PATH_MAX, "%s%s", srv->path, arg);
     } else {
         snprintf(new_pwd, PATH_MAX, "%s%s/%s",

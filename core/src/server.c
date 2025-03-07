@@ -9,7 +9,7 @@
 #include "myftp.h"
 #include "net_utils.h"
 
-static void update_pfds(peer_t* connection_list, struct pollfd* pfds)
+static void update_pfds(peer_t *connection_list, struct pollfd *pfds)
 {
     for (int i = 1; i <= VECTOR_SIZE(connection_list); i++) {
         if (VECTOR_SIZE(connection_list[i - 1].sending_buffer) != 0) {
@@ -21,7 +21,7 @@ static void update_pfds(peer_t* connection_list, struct pollfd* pfds)
 }
 
 static int init_peer_connection(peer_t *conn,
-    const socket_t client_sock, const struct sockaddr_in client_addr)
+    const socket_t client_sock, const struct sockaddr_in *client_addr)
 {
     conn->sending_buffer = VECTOR(char, 1024);
     if (conn->sending_buffer == NULL)
@@ -37,7 +37,7 @@ static int init_peer_connection(peer_t *conn,
         return FAILURE;
     }
     conn->socket = client_sock;
-    conn->address = client_addr;
+    conn->address = *client_addr;
     conn->mode = MODE_NONE;
     conn->data_socket = INVALID_SOCKET;
     conn->should_quit = false;
@@ -45,8 +45,8 @@ static int init_peer_connection(peer_t *conn,
     return SUCCESS;
 }
 
-static void handle_accepted_connection(server_t* srv,
-    const socket_t client_sock, const struct sockaddr_in client_addr)
+static void handle_accepted_connection(server_t *srv,
+    const socket_t client_sock, const struct sockaddr_in *client_addr)
 {
     peer_t conn = {0};
 
@@ -79,7 +79,7 @@ static void handle_new_connection(server_t *srv)
 
     if (client_sock == INVALID_SOCKET)
         return;
-    handle_accepted_connection(srv, client_sock, client_addr);
+    handle_accepted_connection(srv, client_sock, &client_addr);
 }
 
 static void handle_listen_socket_events(server_t *srv)
@@ -110,7 +110,7 @@ static void close_client_connection(server_t *srv, peer_t *conn, int idx)
 
 static void process_socket(server_t *srv, int idx)
 {
-    peer_t* conn = srv->connection_list + idx - 1;
+    peer_t *conn = srv->connection_list + idx - 1;
 
     if (srv->pfds[idx].revents & POLLERR) {
         printf("Error: Socket encountered POLLERR\n");

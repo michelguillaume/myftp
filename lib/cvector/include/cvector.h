@@ -53,16 +53,16 @@ typedef struct {
     #define VECTOR_FRONT(v) (v)
 
     // Get the last element
-    #define VECTOR_BACK(v) ((v) && VECTOR_SIZE(v) > 0 ? (v) + VECTOR_SIZE(v) - 1 : NULL)
+    #define VECTOR_BACK(v) (VECTOR_SIZE(v) > 0 ? (v) + VECTOR_SIZE(v) - 1 : NULL)
 
     // Create a new vector of type T with initial capacity c
     #define VECTOR(T, c) ((T *)vector_init(sizeof(T), (c)))
 
     // Push back n elements (from pointer val) to the vector
-    #define VECTOR_PUSH_BACK(v, val, n) vector_push_back_impl((void**)&(v), (const void*)(val), (n), sizeof(*(v)))
+    #define VECTOR_PUSH_BACK(v, val, n) vector_push_back_impl((void **)&(v), (const void *)(val), (n), sizeof(*(v)))
 
     // Pop back n elements
-    #define VECTOR_POP_BACK(v, n) vector_pop_back_impl((void**)&(v), (n), sizeof(*(v)))
+    #define VECTOR_POP_BACK(v, n) vector_pop_back_impl((void **)&(v), (n), sizeof(*(v)))
 
     // Clear the vector (size = 0, but doesn't change capacity)
     #define VECTOR_CLEAR(v) (VECTOR_HEADER(v)->size = 0)
@@ -77,13 +77,13 @@ typedef struct {
     #define VECTOR_RESIZE(v, new_size) vector_resize_impl((void **)&(v), (new_size), sizeof(*(v)))
 
     // Shrink to fit (reduce capacity to current size)
-    #define VECTOR_SHRINK_TO_FIT(v) vector_shrink_to_fit_impl((void**)&(v), sizeof(*(v)))
+    #define VECTOR_SHRINK_TO_FIT(v) vector_shrink_to_fit_impl((void **)&(v), sizeof(*(v)))
 
 // Insert elements at the specified index
-#define vector_insert(v, index, val, count) vector_insert_impl((void**)&(v), (index), (val), (count), sizeof(*(v)))
+#define vector_insert(v, index, val, count) vector_insert_impl((void **)&(v), (index), (val), (count), sizeof(*(v)))
 
 // Erase elements at the specified index
-#define vector_erase(v, index, count) vector_erase_impl((void**)&(v), (index), (count), sizeof(*(v)))
+#define vector_erase(v, index, count) vector_erase_impl((void **)&(v), (index), (count), sizeof(*(v)))
 
 
 #ifdef __cplusplus
